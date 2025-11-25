@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Assignment 3 - Super Interactive Character</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #eeeeee;
+      font-family: Pretendard, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 20px;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Assignment 3 - Super Interactive Character</h1>
+
+<script>
+let cx = 300, cy = 210;         
+let dragging = false, offsetX=0, offsetY=0;
+
+let smile=false, blink=0, blinkTimer=0;
+let shirtBright=0, bangLong=true, glassesOn=true;
+
+let demoMode=false, demoStart=0;
+let heartTimer=0, shineTimer=0, swingBoost=0;
+
+// 걷기 큰 움직임
+let walkPhase = 0;     
+let walkDir   = 1;     
+let walkAmpX  = 25;    
+let bobAmpY   = 10;    
+let headNodA  = 6;     
+
+function armAngleL() { return radians( 25 * sin(walkPhase*0.8)); }
+function armAngleR() { return radians(-25 * sin(walkPhase*0.8)); }
+
+function setup(){ createCanvas(600,400); }
+
+function draw(){
+  background(236);
+
+  drawMovingBackground();
+
+  if (demoMode){
+    const t = (millis()-demoStart)/1000;
+    if (t>10) demoMode=false;
+
+    walkPhase += 0.12;
+    cx = 300 + walkAmpX * sin(walkPhase) * 1.4;
+    cy = 210 + bobAmpY  * sin(walkPhase*2.0);
+
+    if (t<2) blink = (sin(frameCount*0.4)>0.7)?1:0; else blink=0;
+    if (t>=2 && t<4) smile = true;
+    if (t>=4 && t<6) bangLong = true;
+    if (t>=6 && t<8) shineTimer = 20;
+    if (t>=8){ shirtBright = 80 * sin(frameCount*0.18); heartTimer=30; }
+  } else {
+    walkPhase += 0.06;
+  }
+
+  let headOffsetY = headNodA * sin(walkPhase*1.6);
+
+  drawCharacter(cx, cy, headOffsetY);
+
+  if (heartTimer>0){
+    heartTimer--;
+    drawHeart(cx+40, cy-10, 12, color(255,130,150,230));
+    drawHeart(cx+70, cy-20, 10, color(255,160,170,220));
+    drawHeart(cx+20, cy-25,  8, color(255,190,200,210));
+    drawHeart(cx+55, cy+ 5,  7, color(255,170,180,200));
+    drawHeart(cx+15, cy+15,  6, color(255,210,220,190));
+  }
+
+  if (shineTimer>0) shineTimer--;
+  if (swingBoost>0) swingBoost--;
+}
+
+function drawMovingBackground(){
+  noStroke();
+  for (let i=0;i<6;i++){
+    let t = frameCount*0.02 + i*10;
+    let x = (width + 120) * ((sin(t*0.7)+1)/2) - 60 + i*10;
+    let y = 60 + 50*i + 10*sin(t*1.1 + i);
+    fill(220 - i*8, 230 - i*6, 240 - i*4, 80);
+    ellipse(x, y, 80 - i*6, 80 - i*6);
+  }
+}
+
+function drawCharacter(bx, by, headDY){
+  const SKIN = color(250,224,205), HAIR=color(45,30,25);
+  const SHIRT_BASE=color(135,206,250), PLACKET=color(120,190,235);
+  const COLLAR=color(255), CHEEK=color(255,170,182), LIP=color(220,80,110);
+
+  let SHIRT = color(red(SHIRT_BASE)+shirtBright,
+                    green(SHIRT_BASE)+shirtBright,
+                    blue(SHIRT_BASE)+shirtBright);
+
+  let swayX = 25 * sin(walkPhase);
+  let bobY  = 10 * sin(walkPhase*2.0);
+  let x = bx + swayX;
+  let y = by + bobY;
+
+  // 팔
+  let shoulderL = {x:x-68, y:y+90};
+  let shoulderR = {x:x+68, y:y+90};
+  let armLen = 56;
+  let aL = armAngleL(), aR = armAngleR();
+  let elbowL = {x: shoulderL.x + armLen*cos(aL), y: shoulderL.y + armLen*sin(aL)};
+  let elbowR = {x: shoulderR.x + armLen*cos(aR), y: shoulderR.y + armLen*sin(aR)};
+
+  stroke(80,80,80,120); strokeWeight(6);
+  line(shoulderL.x, shoulderL.y, elbowL.x, elbowL.y);
+  line(shoulderR.x, shoulderR.y, elbowR.x, elbowR.y);
+  noStroke();
+  fill(250,224,205);
+  ellipse(elbowL.x, elbowL.y, 16,16);
+  ellipse(elbowR.x, elbowR.y, 16,16);
+
+  // 머리
+  fill(HAIR);
+  ellipse(x, y-20 + headDY, 280, 340);
+
+  stroke(70,70,70,140); strokeWeight(2);
+  fill(SKIN);
+  ellipse(x, y-30 + headDY, 170, 210);
+  noStroke();
+
+  // 앞머리
+  fill(HAIR);
+  let bangH = bangLong ? 70 : 45;
+  rect(x-90,  y-150 + headDY, 180, bangH, 20);
+  arc(x, y-150 + bangH + headDY, 180, 80, PI, TWO_PI, CHORD);
+
+  // 목
+  fill(SKIN);
+  rect(x-16, y+40, 32, 28, 6);
+
+  // 셔츠
+  fill(SHIRT);
+  rect(x-120, y+68, 240, 120, 20);
+
+  fill(PLACKET);
+  rect(x-10,  y+68, 20, 120, 6);
+
+  fill(255);
+  for (let i=0;i<4;i++) ellipse(x, y+80 + i*28, 8,8);
+
+  fill(PLACKET);
+  rect(x-90, y+90, 56, 40, 6);
+  rect(x-90, y+90, 56, 6, 6);
+
+  fill(COLLAR);
+  triangle(x-16, y+68, x-60, y+120, x, y+120);
+  triangle(x+16, y+68, x+60, y+120, x, y+120);
+
+  // 귀
+  fill(SKIN);
+  ellipse(x-95, y-22 + headDY, 18,30);
+  ellipse(x+95, y-22 + headDY, 18,30);
+
+  // 귀걸이
+  let swing = (sin(frameCount*0.2)*15) + swingBoost*0.4;
+  drawFlowerSwing(x-95, y+2 + headDY, 7, color(255,200,200), radians(swing));
+  drawFlowerSwing(x+95, y+2 + headDY, 7, color(255,200,200), radians(-swing));
+
+  // 눈
+  let eyeW=44, eyeH=lerp(34, 2, blink);
+  fill(0);
+  ellipse(x-45, y-45 + headDY, eyeW, eyeH);
+  ellipse(x+45, y-45 + headDY, eyeW, eyeH);
+
+  fill(255);
+  let dirLx = map(mouseX, 0,width, -10,10);
+  let dirLy = map(mouseY, 0,height,-10,10);
+  ellipse(x-52 + dirLx, y-50 + headDY + dirLy, 7,7);
+  ellipse(x+38 + dirLx, y-50 + headDY + dirLy, 7,7);
+
+  // 안경
+  if (glassesOn){
+    noFill(); stroke(40); strokeWeight(2);
+    ellipse(x-45, y-45 + headDY, 60,42);
+    ellipse(x+45, y-45 + headDY, 60,42);
+    line(x-15, y-45 + headDY, x+15, y-45 + headDY);
+
+    if (shineTimer>0){
+      stroke(255,255,255,180); strokeWeight(2);
+      let s = (frameCount%30)/30.0;
+      let lx = lerp(x-80, x+80, s);
+      let ly = y-68 + headDY;
+      line(lx, ly, lx+24, ly+18);
+    }
+  }
+
+  // 코
+  noStroke(); fill(230,190,170);
+  ellipse(x, y-22 + headDY, 6,6);
+
+  // 볼터치
+  fill(CHEEK);
+  ellipse(x-65, y-12 + headDY, 16,16);
+  ellipse(x+65, y-12 + headDY, 16,16);
+
+  // 입
+  fill(LIP);
+  if (smile) arc(x, y-5 + headDY, 44,16, 0,PI, CHORD);
+  else       rect(x-16, y-9 + headDY, 32,10, 6);
+}
+
+function drawFlowerSwing(x,y,r,col,ang){
+  noStroke(); fill(col);
+  for (let i=0;i<5;i++){
+    let a = ang + TWO_PI*i/5.0;
+    ellipse(x+cos(a)*r, y+sin(a)*r, r, r);
+  }
+  fill(255,180,0);
+  ellipse(x,y,r,r);
+}
+
+function drawHeart(x,y,s,c){
+  noStroke(); fill(c);
+  ellipse(x - s*0.5, y, s, s);
+  ellipse(x + s*0.5, y, s, s);
+  triangle(x - s, y, x + s, y, x, y + s*1.6);
+}
+
+function mousePressed(){
+  let d = dist(mouseX, mouseY, cx, cy);
+  if (d<140){ dragging=true; offsetX=cx-mouseX; offsetY=cy-mouseY; }
+  smile = !smile; 
+  heartTimer = 25;
+}
+
+function mouseDragged(){ if (dragging){ cx=mouseX+offsetX; cy=mouseY+offsetY; } }
+function mouseReleased(){ dragging=false; }
+function doubleClicked(){ glassesOn = !glassesOn; }
+
+function keyPressed(){
+  if (key==='w'||key==='W') cy-=6;
+  if (key==='a'||key==='A') cx-=6;
+  if (key==='d'||key==='D') cx+=6;
+  if (key==='s'||key==='S'){
+    if (keyIsDown(SHIFT)) saveCanvas('super_interactive_caricature','png');
+    else cy+=6;
+  }
+
+  if (keyCode===UP_ARROW)   shirtBright=min(shirtBright+12, 100);
+  if (keyCode===DOWN_ARROW) shirtBright=max(shirtBright-12, -80);
+
+  if (key===' ') { blink=1; blinkTimer=frameCount; }
+  if (key==='b'||key==='B') bangLong=!bangLong;
+  if (key==='h'||key==='H') heartTimer=45;
+  if (key==='e'||key==='E') swingBoost=70;
+  if (key==='l'||key==='L') shineTimer=40;
+  if (key==='g'||key==='G'){ demoMode=true; demoStart=millis(); }
+  if (key==='r'||key==='R'){
+    cx=300; cy=210; dragging=false;
+    smile=false; blink=0; shirtBright=0; bangLong=true; glassesOn=true;
+    heartTimer=0; shineTimer=0; swingBoost=0; demoMode=false; walkPhase=0;
+  }
+}
+
+function keyReleased(){ 
+  if (key===' ' && frameCount-blinkTimer>2) blink=0; 
+}
+</script>
+
+</body>
+</html>
