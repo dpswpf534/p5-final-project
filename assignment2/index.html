@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Assignment 2 - Character</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #f0f0f0;
+      font-family: Pretendard, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 20px;
+      color: #444;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Assignment 2 - My Character</h1>
+
+  <script>
+    function setup() {
+      createCanvas(600, 400);
+      background(236); // 연회색
+
+      // 팔레트
+      const SKIN   = color(250, 224, 205);
+      const HAIR   = color(45, 30, 25);
+      const SHIRT  = color(135, 206, 250); // 하늘색 셔츠
+      const PLACKET= color(120, 190, 235);
+      const COLLAR = color(255);
+      const CHEEK  = color(255, 170, 182);
+      const LIP    = color(220, 80, 110);
+
+      const cx = 300, cy = 190;
+
+      noStroke();
+
+      // === 머리(뒤) ===
+      fill(HAIR);
+      ellipse(cx, cy + 10, 270, 330);
+
+      // === 얼굴 ===
+      stroke(70, 70, 70, 140);
+      strokeWeight(2);
+      fill(SKIN);
+      ellipse(cx, cy, 170, 210);
+      noStroke();
+
+      // === 앞머리 (일자) ===
+      fill(HAIR);
+      rect(cx - 90, cy - 120, 180, 70, 20);
+      arc(cx, cy - 50, 180, 80, PI, TWO_PI, CHORD);
+
+      // === 목 ===
+      fill(SKIN);
+      rect(cx - 16, cy + 70, 32, 28, 6);
+
+      // === 셔츠 ===
+      fill(SHIRT);
+      rect(cx - 120, cy + 98, 240, 120, 20);
+
+      fill(PLACKET);
+      rect(cx - 10, cy + 98, 20, 120, 6);
+
+      fill(255);
+      let by = cy + 110;
+      for (let i = 0; i < 4; i++) ellipse(cx, by + i * 28, 8, 8);
+
+      fill(PLACKET);
+      rect(cx - 90, cy + 120, 56, 40, 6);
+      rect(cx - 90, cy + 120, 56, 6, 6);
+
+      fill(COLLAR);
+      triangle(cx - 16, cy + 98, cx - 60, cy + 150, cx, cy + 150);
+      triangle(cx + 16, cy + 98, cx + 60, cy + 150, cx, cy + 150);
+
+      // === 눈 ===
+      fill(0);
+      ellipse(cx - 45, cy - 15, 44, 34);
+      ellipse(cx + 45, cy - 15, 44, 34);
+      fill(255);
+      ellipse(cx - 52, cy - 20, 6, 6);
+      ellipse(cx + 38, cy - 20, 6, 6);
+
+      // === 안경 ===
+      noFill();
+      stroke(40);
+      strokeWeight(2);
+      ellipse(cx - 45, cy - 15, 60, 42);
+      ellipse(cx + 45, cy - 15, 60, 42);
+      line(cx - 15, cy - 15, cx + 15, cy - 15);
+
+      // === 코 ===
+      noStroke();
+      fill(230, 190, 170);
+      ellipse(cx, cy + 10, 6, 6);
+
+      // === 볼터치 ===
+      fill(CHEEK);
+      ellipse(cx - 65, cy + 20, 16, 16);
+      ellipse(cx + 65, cy + 20, 16, 16);
+
+      // === 입 ===
+      fill(LIP);
+      rect(cx - 16, cy + 42, 32, 10, 6);
+
+      // === 꽃 귀걸이 ===
+      drawFlower(cx - 90, cy + 40, 8, color(255, 200, 200));
+      drawFlower(cx + 90, cy + 40, 8, color(255, 200, 200));
+    }
+
+    function drawFlower(x, y, r, petalColor) {
+      noStroke();
+      fill(petalColor);
+      for (let i = 0; i < 5; i++) {
+        let angle = TWO_PI * i / 5;
+        let px = x + cos(angle) * r;
+        let py = y + sin(angle) * r;
+        ellipse(px, py, r, r);
+      }
+      fill(255, 180, 0);
+      ellipse(x, y, r, r);
+    }
+
+    function keyPressed() {
+      if (key === 's' || key === 'S') {
+        saveCanvas('caricature_with_glasses_flower', 'png');
+      }
+    }
+  </script>
+
+</body>
+</html>
