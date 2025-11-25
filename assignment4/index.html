@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Assignment 4 - Abstract Animation</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #ddd;
+      text-align: center;
+      font-family: Pretendard, sans-serif;
+    }
+    h1 {
+      margin-top: 20px;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Assignment 4 - Abstract Animation</h1>
+
+<script>
+let stars = [];
+
+function setup() {
+  createCanvas(600, 400);
+  colorMode(HSB);
+  noStroke();
+
+  // 별 초기 생성
+  for (let i = 0; i < 70; i++) {
+    stars.push({
+      x: random(width),
+      y: random(150),
+      size: random(2, 4)
+    });
+  }
+}
+
+function draw() {
+  background(230, 30, 20);  // 네온 느낌의 딥블루 배경
+  let t = frameCount * 0.02; // 시간 변수
+
+  // ------------------------------
+  // 🔵 파란 원 — 좌우 흔들림
+  let blueX = 160 + sin(t) * 15;
+  fill(215, 90, 255);
+  ellipse(blueX, 130, 180, 180);
+
+  // ------------------------------
+  // 🟩 초록 삼각형
+  fill(120, 60, 90);
+  triangle(420, 80, 520, 160, 450, 230);
+
+  // ------------------------------
+  // 🟥 빨간 사각형
+  fill(0, 80, 90);
+  rect(80, 250, 200, 120, 15);
+
+  // ------------------------------
+  // 🟡 노란 원
+  fill(50, 100, 100);
+  ellipse(500, 60, 40, 40);
+
+  // ------------------------------
+  // ⭐ 별 반짝임(random)
+  for (let s of stars) {
+    let flicker = random(-1, 1);
+    fill(60, 0, 100, 0.8 + flicker);
+    ellipse(s.x, s.y, s.size + flicker, s.size + flicker);
+  }
+
+  // ------------------------------
+  // 🌕 중앙 원 2개 — 색상 변화 + pulsing
+  let c1 = color(40, 80, 100);
+  let c2 = color(200, 80, 90);
+  let mix = sin(t * 0.7) * 0.5 + 0.5;
+
+  fill(lerpColor(c1, c2, mix));
+  ellipse(300, 200, 260 + sin(t) * 10, 260 + sin(t) * 10);
+
+  fill(lerpColor(c2, c1, mix));
+  ellipse(320, 220, 180 + cos(t) * 8, 180 + cos(t) * 8);
+
+  // ------------------------------
+  // 🏙 네온 타워 3개 — 위아래 흔들림
+  let up1 = sin(t * 1.5) * 8;
+  let up2 = sin(t * 1.8) * 10;
+  let up3 = sin(t * 1.2) * 6;
+
+  fill(210, 70, 100, 0.5);
+  rect(340, 240 + up1, 40, 160, 10);
+
+  fill(330, 50, 100, 0.5);
+  rect(390, 210 + up2, 40, 190, 10);
+
+  fill(150, 70, 100, 0.5);
+  rect(440, 260 + up3, 40, 140, 10);
+
+  // ------------------------------
+  // 🌈 네온 곡선
+  stroke(300, 50, 100, 0.4);
+  strokeWeight(10);
+  noFill();
+  arc(300, 350 + sin(t) * 5, 500, 200, PI, TWO_PI);
+
+  stroke(160, 30, 100, 0.3);
+  strokeWeight(8);
+  arc(320, 370 + cos(t) * 5, 400, 160, PI, TWO_PI - 0.5);
+
+  noStroke();
+}
+
+// GIF 저장
+function keyPressed() {
+  if (key === 's') {
+    saveGif("abstract_animation.gif", 10);  // 10초 GIF 생성
+  }
+}
+</script>
+
+</body>
+</html>
